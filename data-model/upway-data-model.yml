@@ -1,0 +1,418 @@
+generated: '2026-09-02'
+method: derived
+source: mcp/upway-mcp-tools.json
+name: Upway Commerce Data Model
+description: >-
+  Entity-relationship graph derived from the JSON Schema 2020-12 inputSchemas of the 13
+  live UCP MCP tools served at https://upway.co/api/ucp/mcp. Every entity, field and
+  relationship below appears in a schema Upway serves; nothing is imported from the UCP
+  or Shopify specification to fill a gap. Response schemas are not published, so this
+  models the request surface - what an agent must construct - and marks read-only
+  entities as such.
+identifier_scheme:
+  format: Shopify global ID
+  pattern: 'gid://shopify/<Type>/<id>'
+  examples:
+  - 'gid://shopify/Checkout/abc123'
+  - 'gid://shopify/Order/123'
+  note: >-
+    Documented inline in the id parameter descriptions of get_checkout, update_checkout
+    and get_order. Product and variant identifiers are passed as opaque strings without
+    a stated prefix.
+entities:
+- name: AgentProfile
+  read_only: false
+  description: >-
+    The calling agent's UCP profile, supplied on EVERY tool call as
+    meta.ucp-agent.profile. The only universally required object in the model.
+  fields:
+  - name: profile
+    type: string
+    format: uri
+    required: true
+    description: Agent profile URI for UCP discovery.
+  operations: [all 13 tools]
+- name: Product
+  read_only: true
+  description: A catalog item - a certified pre-owned e-bike or accessory.
+  fields:
+  - name: id
+    type: string
+    description: Product ID, passed to get_product.
+  - name: selected
+    type: array
+    description: Selected variant options, each with name and label.
+  - name: preferences
+    type: array
+    description: Buyer preferences narrowing variant selection.
+  operations: [search_catalog, lookup_catalog, get_product]
+- name: ProductVariant
+  read_only: true
+  description: >-
+    A purchasable configuration of a Product. Referenced by id when adding to a cart -
+    line_items[].item.id is documented as "The Product Variant ID to add or update", so
+    the variant, not the product, is what a cart actually holds.
+  operations: [lookup_catalog, get_product, create_cart, update_cart, create_checkout, update_checkout]
+- name: CatalogQuery
+  read_only: false
+  description: Search parameters for the catalog. Not persisted; a request-shaped entity.
+  fields:
+  - name: query
+    type: string
+  - name: filters.categories
+    type: array
+    description: Category filters combined with OR logic.
+  - name: filters.price.min
+    type: integer
+    description: Minimum price in minor currency units.
+  - name: filters.price.max
+    type: integer
+    description: Maximum price in minor currency units.
+  - name: filters.available
+    type: boolean
+    description: Default true - only sale-ready items.
+  - name: pagination.cursor
+    type: string
+  - name: pagination.limit
+    type: integer
+  operations: [search_catalog, lookup_catalog, get_product]
+- name: Cart
+  read_only: false
+  description: A mutable, uncommitted basket. Convertible to a Checkout via checkout.cart_id.
+  fields:
+  - name: line_items
+    type: array
+  - name: buyer
+    type: object
+  - name: context
+    type: object
+  - name: attribution
+    type: object
+  - name: fulfillment
+    type: object
+  - name: discounts
+    type: object
+  operations: [create_cart, get_cart, update_cart, cancel_cart]
+- name: LineItem
+  read_only: false
+  description: One quantity-bearing entry pointing at a ProductVariant.
+  fields:
+  - name: id
+    type: string
+    description: The ID of the line item to update.
+  - name: quantity
+    type: integer
+  - name: item.id
+    type: string
+    description: The Product Variant ID to add or update.
+  operations: [create_cart, update_cart, create_checkout, update_checkout]
+- name: Buyer
+  read_only: false
+  description: Contact identity for the purchase. Not an account - no customer id is required.
+  fields:
+  - name: email
+    type: string
+  - name: phone_number
+    type: string
+  operations: [create_cart, update_cart, create_checkout, update_checkout]
+- name: BuyerContext
+  read_only: false
+  description: >-
+    Provisional localization and pricing hints. llms.txt instructs agents to pass
+    context.address_country and context.currency for accurate pricing and availability -
+    the one convention Upway calls out by name.
+  fields:
+  - name: address_country
+    type: string
+  - name: address_region
+    type: string
+  - name: postal_code
+    type: string
+  - name: language
+    type: string
+    description: IETF BCP 47.
+  - name: currency
+    type: string
+    description: ISO 4217.
+  - name: intent
+    type: string
+  - name: eligibility
+    type: array
+    description: Buyer claims about eligible benefits such as loyalty membership.
+  operations: [search_catalog, lookup_catalog, get_product, create_cart, update_cart, create_checkout, update_checkout]
+- name: Attribution
+  read_only: false
+  description: Marketing attribution for the buying session, carried through the agent.
+  fields:
+  - name: referring_domain
+    type: string
+  - name: click_id_tag
+    type: string
+    description: e.g. gclid, fbclid.
+  - name: click_id_value
+    type: string
+  - name: activity_id_tag
+    type: string
+  - name: activity_id_value
+    type: string
+  - name: utm_campaign
+    type: string
+  - name: utm_source
+    type: string
+  - name: utm_medium
+    type: string
+  - name: utm_content
+    type: string
+  - name: utm_term
+    type: string
+  operations: [create_cart, update_cart, create_checkout, update_checkout]
+- name: Checkout
+  read_only: false
+  description: >-
+    A priced, committable transaction. Carries totals, taxes and discounts. The only
+    entity whose completion moves money.
+  fields:
+  - name: cart_id
+    type: string
+    description: Cart ID to convert to checkout.
+  - name: line_items
+    type: array
+  - name: buyer
+    type: object
+  - name: context
+    type: object
+  - name: attribution
+    type: object
+  - name: fulfillment
+    type: object
+  - name: discounts
+    type: object
+  - name: payment
+    type: object
+  operations: [create_checkout, get_checkout, update_checkout, complete_checkout, cancel_checkout]
+- name: Fulfillment
+  read_only: false
+  description: How and where the items are delivered.
+  fields:
+  - name: methods[].type
+    type: string
+  - name: methods[].line_item_ids
+    type: array
+  - name: methods[].selected_destination_id
+    type: string
+  - name: methods[].destinations
+    type: array
+  - name: methods[].groups
+    type: array
+  operations: [create_cart, update_cart, create_checkout, update_checkout]
+- name: Destination
+  read_only: false
+  description: A shipping address plus contact, nested under a fulfillment method.
+  fields:
+  - name: id
+    type: string
+  - name: first_name
+    type: string
+  - name: last_name
+    type: string
+  - name: phone_number
+    type: string
+  - name: street_address
+    type: string
+  - name: extended_address
+    type: string
+  - name: address_locality
+    type: string
+  - name: address_region
+    type: string
+  - name: postal_code
+    type: string
+  - name: address_country
+    type: string
+    description: ISO 3166-1 alpha-2.
+  operations: [create_cart, update_cart, create_checkout, update_checkout]
+- name: FulfillmentGroup
+  read_only: false
+  description: A shippable grouping with a selected shipping option.
+  fields:
+  - name: id
+    type: string
+  - name: selected_option_id
+    type: string
+  operations: [create_cart, update_cart, create_checkout, update_checkout]
+- name: Discount
+  read_only: false
+  description: >-
+    Promo codes applied to a cart or checkout. Case-insensitive, and a submission
+    REPLACES previously submitted codes rather than appending - a replace-not-merge
+    semantic an agent must not get wrong.
+  fields:
+  - name: codes
+    type: array
+  operations: [create_cart, update_cart, create_checkout, update_checkout]
+- name: Payment
+  read_only: false
+  description: Payment instruments attached to a checkout.
+  fields:
+  - name: instruments
+    type: array
+  operations: [create_checkout, update_checkout, complete_checkout]
+- name: PaymentInstrument
+  read_only: false
+  description: >-
+    One payment method instance, bound by handler_id to a payment handler declared in
+    /.well-known/ucp. The schema uses if/then/else composition: an apple-pay handler_id
+    requires billing_address and an apple_pay_token credential; every other handler
+    requires credential.token and credential.type.
+  fields:
+  - name: id
+    type: string
+  - name: handler_id
+    type: string
+  - name: type
+    type: string
+  - name: selected
+    type: boolean
+  - name: billing_address
+    type: object
+  - name: credential.token
+    type: string
+    description: Opaque payment token value.
+  - name: credential.type
+    type: string
+    description: Namespaced token type using dot notation.
+  - name: display.brand
+    type: string
+  - name: display.last_digits
+    type: string
+  - name: display.expiry_month
+    type: integer
+  - name: display.expiry_year
+    type: integer
+  - name: display.funding_source
+    type: string
+  operations: [create_checkout, update_checkout, complete_checkout]
+- name: PaymentHandler
+  read_only: true
+  description: >-
+    A declared payment rail. Not passed in a tool call - discovered from
+    /.well-known/ucp payment_handlers and referenced by PaymentInstrument.handler_id.
+  instances:
+  - com.google.pay
+  - dev.shopify.card
+  - dev.shopify.shop_pay
+  source: well-known/upway-ucp.json
+- name: Order
+  read_only: true
+  description: The result of a completed checkout. Retrievable, not mutable, on this surface.
+  fields:
+  - name: id
+    type: string
+    description: "Format: gid://shopify/Order/123"
+  operations: [get_order, complete_checkout]
+relationships:
+- from: Cart
+  to: LineItem
+  type: has_many
+  via: cart.line_items
+- from: LineItem
+  to: ProductVariant
+  type: belongs_to
+  via: line_items[].item.id
+- from: ProductVariant
+  to: Product
+  type: belongs_to
+  via: catalog.selected variant options on get_product
+- from: Cart
+  to: Buyer
+  type: has_one
+  via: cart.buyer
+- from: Cart
+  to: BuyerContext
+  type: has_one
+  via: cart.context
+- from: Cart
+  to: Attribution
+  type: has_one
+  via: cart.attribution
+- from: Cart
+  to: Fulfillment
+  type: has_one
+  via: cart.fulfillment
+- from: Cart
+  to: Discount
+  type: has_one
+  via: cart.discounts
+- from: Checkout
+  to: Cart
+  type: belongs_to
+  via: checkout.cart_id
+- from: Checkout
+  to: LineItem
+  type: has_many
+  via: checkout.line_items
+- from: Checkout
+  to: Buyer
+  type: has_one
+  via: checkout.buyer
+- from: Checkout
+  to: BuyerContext
+  type: has_one
+  via: checkout.context
+- from: Checkout
+  to: Attribution
+  type: has_one
+  via: checkout.attribution
+- from: Checkout
+  to: Fulfillment
+  type: has_one
+  via: checkout.fulfillment
+- from: Checkout
+  to: Discount
+  type: has_one
+  via: checkout.discounts
+- from: Checkout
+  to: Payment
+  type: has_one
+  via: checkout.payment
+- from: Payment
+  to: PaymentInstrument
+  type: has_many
+  via: payment.instruments
+- from: PaymentInstrument
+  to: PaymentHandler
+  type: belongs_to
+  via: instruments[].handler_id
+- from: Fulfillment
+  to: Destination
+  type: has_many
+  via: fulfillment.methods[].destinations
+- from: Fulfillment
+  to: FulfillmentGroup
+  type: has_many
+  via: fulfillment.methods[].groups
+- from: Fulfillment
+  to: LineItem
+  type: has_many
+  via: fulfillment.methods[].line_item_ids
+- from: Order
+  to: Checkout
+  type: belongs_to
+  via: complete_checkout returns the order ID for the checkout it completed
+- from: AgentProfile
+  to: all entities
+  type: has_many
+  via: meta.ucp-agent.profile, required on every call
+money:
+  representation: '{"amount": <integer minor units>, "currency": <ISO 4217>}'
+  note: Applies to every price field in the model, including filters.price.min/max.
+gaps:
+- >-
+  Response schemas are not published. The model covers what an agent sends; the shape of
+  what comes back - totals, tax lines, availability, shipping option objects, order
+  status - is discoverable only by calling.
+- No id-prefix registry is published for product or variant identifiers.
+- >-
+  There is no Customer/Account entity on this surface. The buyer is an email and a phone
+  number; a signed-in customer lives behind the separate OIDC customer-account surface
+  (see scopes/upway-scopes.yml), not here.

@@ -1,0 +1,81 @@
+generated: '2026-09-02'
+method: probed
+source: https://upway.co/.well-known/oauth-protected-resource
+name: Upway Authentication Profile
+description: >-
+  Upway's agent-facing commerce surface has two distinct authentication postures. The
+  UCP MCP endpoint at https://upway.co/api/ucp/mcp is anonymous - an unauthenticated
+  tools/list returned HTTP 200 with the full tool schemas - and the read-only storefront
+  JSON endpoints documented in agents.md need no credential either. Authorization is not
+  carried by an API key at all; it is carried by buyer approval at payment time and by a
+  payment instrument/credential supplied inside the checkout object. Separately, the
+  store publishes OpenID Connect and OAuth 2.0 discovery for customer accounts, whose
+  authorization server is Shopify's identity service for shop 65864040675.
+docs: https://upway.co/agents.md
+schemes:
+- id: anonymous_mcp
+  type: none
+  in: null
+  applies_to: https://upway.co/api/ucp/mcp
+  description: >-
+    No Authorization header is required to initialize the server or list tools. Probed
+    2026-09-02: POST tools/list without credentials returned 200 and 13 tool definitions.
+  evidence:
+    url: https://upway.co/api/ucp/mcp
+    status: 200
+    authenticated: false
+- id: buyer_approval
+  type: out-of-band
+  applies_to: complete_checkout
+  description: >-
+    "Checkout requires human approval. Agents must not complete payment without explicit
+    buyer consent." Stated verbatim in https://upway.co/llms.txt. Payment credentials are
+    passed as checkout.payment.instruments[] entries bound to a declared payment handler
+    (com.google.pay, dev.shopify.card, dev.shopify.shop_pay); the Shop Pay handler routes
+    the approval through a wallet the buyer already authorized.
+  evidence:
+    url: https://upway.co/llms.txt
+    status: 200
+- id: shopify_customer_accounts_oidc
+  type: openIdConnect
+  openIdConnectUrl: https://upway.co/.well-known/openid-configuration
+  applies_to: customer account surfaces on upway.co
+  description: >-
+    OIDC discovery served under Upway's own domain. Issuer
+    https://shopify.com/authentication/65864040675. Authorization code flow with PKCE
+    (code_challenge_methods_supported S256), client_secret_basic / client_secret_post
+    token auth, RS256 ID tokens, refresh_token and jwt-bearer grants.
+  evidence:
+    url: https://upway.co/.well-known/openid-configuration
+    status: 200
+- id: shopify_customer_accounts_oauth2
+  type: oauth2
+  flows:
+    authorizationCode:
+      authorizationUrl: https://shopify.com/authentication/65864040675/oauth/authorize
+      tokenUrl: https://shopify.com/authentication/65864040675/oauth/token
+      scopes:
+        openid: Subject identifier for the signed-in customer.
+        email: Customer email address and email_verified claim.
+        customer-account-api:full: Full access to the Shopify Customer Account API for this shop.
+        customer-account-mcp-api:full: Full access to the authenticated customer-account MCP API for this shop.
+  bearer_methods_supported:
+  - header
+  protected_resource: https://upway.co
+  evidence:
+    url: https://upway.co/.well-known/oauth-authorization-server
+    status: 200
+  rfc9728:
+    url: https://upway.co/.well-known/oauth-protected-resource
+    status: 200
+    resource: https://upway.co
+    authorization_servers:
+    - https://shopify.com/authentication/65864040675
+notes:
+- >-
+  The authorization server is on shopify.com rather than upway.co because Upway's store
+  runs on Shopify and delegates customer identity to Shopify's identity service; the
+  RFC 9728 protected-resource document served from upway.co names upway.co as the
+  resource and shopify.com as its authorization server, which is exactly the pattern
+  RFC 9728 exists to express.
+- No API key, no bearer token and no mTLS are documented anywhere on Upway's surface.

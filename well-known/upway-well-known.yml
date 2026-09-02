@@ -1,0 +1,100 @@
+generated: '2026-09-02'
+method: probed
+source: https://upway.co/.well-known/
+name: Upway Well-Known Documents
+description: >-
+  Probe of the RFC 8615 /.well-known/ namespace on Upway's storefront hosts. The US
+  storefront (upway.co) serves a Universal Commerce Protocol (UCP) merchant profile,
+  an OpenID Connect discovery document and both OAuth 2.0 metadata documents (RFC 8414
+  authorization-server metadata and RFC 9728 protected-resource metadata). These are
+  served under Upway's own domain by the Shopify commerce platform that runs the store;
+  the UCP profile names the merchant "Upway United States" with merchant_origin
+  upway.co, so the documents describe Upway's own store surface.
+hosts:
+- host: upway.co
+  documents:
+  - path: /.well-known/ucp
+    status: 200
+    file: well-known/upway-ucp.json
+    note: >-
+      UCP merchant profile. Declares protocol version 2026-08-25 (plus 2026-04-08 and
+      2026-01-23), an MCP transport endpoint, the dev.ucp.shopping.* capability set
+      (cart, checkout, fulfillment, discount, order, catalog.search, catalog.lookup),
+      the dev.shopify.catalog extension, and three payment handlers (Google Pay,
+      Shopify card, Shop Pay).
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: well-known/upway-openid-configuration.json
+    note: >-
+      OIDC discovery for the store's customer-account identity provider, issuer
+      https://shopify.com/authentication/65864040675. Scopes: openid, email,
+      customer-account-api:full, customer-account-mcp-api:full.
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: well-known/upway-oauth-authorization-server.json
+    note: RFC 8414 metadata; byte-identical payload to the OIDC discovery document.
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: well-known/upway-oauth-protected-resource.json
+    note: >-
+      RFC 9728. resource https://upway.co, authorization_servers
+      [https://shopify.com/authentication/65864040675], bearer_methods_supported [header].
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  - path: /.well-known/mcp.json
+    status: 404
+    file: null
+- host: upway.fr
+  documents:
+  - path: /.well-known/ucp
+    status: 200
+    file: null
+    note: Served; not saved separately - same UCP shape as upway.co, French storefront.
+- host: upway.de
+  documents:
+  - path: /.well-known/ucp
+    status: 200
+    file: null
+    note: Served; not saved separately - German storefront.
+- host: upway.be
+  documents:
+  - path: /.well-known/ucp
+    status: 200
+    file: null
+    note: Served; not saved separately - Belgian storefront.
+- host: upway.nl
+  documents:
+  - path: /.well-known/ucp
+    status: 200
+    file: null
+    note: Served; not saved separately - Dutch storefront.
+- host: upway.es
+  documents:
+  - path: /.well-known/ucp
+    status: 200
+    file: null
+    note: Served; not saved separately - Spanish storefront.
+- host: upway.it
+  documents:
+  - path: /.well-known/ucp
+    status: 200
+    file: null
+    note: Served; not saved separately - Italian storefront.
+notes:
+- No security.txt is served on any probed host, so no SecurityTxt pointer is emitted.
+- >-
+  upway.com does not resolve (NXDOMAIN); upway.co.uk did not answer. Neither was
+  treated as a host of record.

@@ -1,0 +1,60 @@
+generated: '2026-09-02'
+method: searched
+source: https://upway.co/llms.txt
+name: Upway Rate Limits
+description: >-
+  Upway documents that its agent commerce endpoint is rate limited and tells agents how
+  to react, but publishes no number, window or budget. That is the finding: the runtime
+  signal (429 + back off) is stated, the quantity is not, and no RateLimit-* headers
+  were present on live responses.
+docs: https://upway.co/llms.txt
+limit_count: 0
+limits:
+- scope: per-ip
+  surface: https://upway.co/api/ucp/mcp
+  window: null
+  limit: null
+  burst: null
+  status_code: 429
+  documented: true
+  quantified: false
+  statement: >-
+    "Respect rate limits. The MCP endpoint is rate-limited per IP. Back off on 429
+    responses."
+  source: https://upway.co/llms.txt
+headers:
+  standard_ratelimit_headers: false
+  observed_on_200: []
+  probed:
+  - url: https://upway.co/api/ucp/mcp
+    method: POST
+    status: 200
+    ratelimit_headers_present: false
+    note: >-
+      Response carried shopify-complexity-score 420 and shopify-complexity-score-v2 42,
+      plus x-request-id and server-timing. The complexity-score headers report the cost
+      of the request against Shopify's internal budget; they are not a published
+      RateLimit-* budget, are not documented by Upway, and an agent cannot derive a
+      remaining allowance from them.
+  - url: https://upway.co/
+    method: GET
+    status: 200
+    ratelimit_headers_present: false
+    note: shopify-complexity-score 2740 / v2 274 present; no RateLimit-* headers.
+  retry_after_documented: false
+  retry_after_observed: false
+gaps:
+- >-
+  No numeric limit, no window and no burst allowance is published, so an agent must
+  discover the ceiling by hitting it.
+- >-
+  No RFC 9331 RateLimit / RateLimit-Policy headers and no Retry-After were observed, so
+  a 429 carries no machine-readable back-off hint - the guidance to "back off" is prose
+  in llms.txt only.
+x-evidence:
+  fetched: '2026-09-02'
+  urls:
+  - url: https://upway.co/llms.txt
+    status: 200
+  - url: https://upway.co/api/ucp/mcp
+    status: 200

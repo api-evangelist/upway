@@ -64,5 +64,34 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Upway is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
-- https://www.nasdaqprivatemarket.com/
+Upway is the largest marketplace for certified pre-owned electric bikes. Founded in 2021 by
+former Uber executives Toussaint Wattinne and Stephane Ficaja, it buys used e-bikes from
+individuals, retailers and manufacturers, reconditions them through a 50-point inspection at
+its own UpCenter facilities, and resells them at up to 60% off with a one-year warranty. It
+operates storefronts in France, Germany, Belgium, the Netherlands, Spain, Italy and the
+United States.
+
+## The API surface
+
+Upway has no developer program, no OpenAPI and no SDKs. It does have a real, live,
+agent-facing commerce API:
+
+- **A remote MCP server** at `https://upway.co/api/ucp/mcp`. Anonymous. An unauthenticated
+  `tools/list` returns 13 tools with full JSON Schema 2020-12 input schemas covering catalog
+  search, cart, checkout and order retrieval. Captured verbatim in
+  [`mcp/upway-mcp-tools.json`](mcp/upway-mcp-tools.json).
+- **A Universal Commerce Protocol merchant profile** at `/.well-known/ucp`, declaring UCP
+  2026-08-25 plus two older supported versions, the `dev.ucp.shopping.*` capability set, and
+  three payment handlers.
+- **`llms.txt` and `agents.md`** on every storefront host, plus a dedicated
+  `sitemap_agentic_discovery.xml`.
+- **OIDC and OAuth 2.0 discovery** for customer accounts, including RFC 9728
+  protected-resource metadata naming `upway.co` as the resource.
+
+The MCP server implementation is platform-authored (Shopify's `universal-commerce` UCP
+runtime) and served under Upway's own domain; the catalog, merchant profile and payment
+configuration are Upway's. That distinction is recorded in
+[`mcp/upway-mcp.yml`](mcp/upway-mcp.yml) rather than glossed over.
+
+- https://upway.co/
+- https://upway.co/agents.md

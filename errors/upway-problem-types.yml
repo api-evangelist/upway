@@ -1,0 +1,95 @@
+generated: '2026-09-02'
+method: derived
+source: mcp/upway-mcp-tools.json
+name: Upway Error Catalog
+description: >-
+  Upway publishes no error reference. This catalog is derived from what the surface
+  actually is - a JSON-RPC 2.0 server over HTTP - plus the two failure behaviours Upway
+  does state in writing (429 rate limiting with back-off, and refusal of an unapproved
+  payment). Every row says where it came from. Nothing here is a guessed vendor code:
+  the JSON-RPC codes are the fixed codes of the transport Upway chose, not codes Upway
+  invented, and where Upway has published nothing that is recorded as a gap rather than
+  filled in.
+format: jsonrpc-2.0
+rfc9457: false
+envelope:
+  transport: JSON-RPC 2.0 over HTTP POST
+  success_shape: '{"jsonrpc":"2.0","id":<id>,"result":{...}}'
+  error_shape: '{"jsonrpc":"2.0","id":<id>,"error":{"code":<int>,"message":<string>,"data":<any>}}'
+  note: >-
+    Confirmed by the shape of the live 200 responses to initialize and tools/list. A
+    JSON-RPC server signals application failure inside a 200 body via the error member;
+    HTTP status codes cover transport-level failure only.
+  content_type: application/json; charset=utf-8
+problem_types:
+- code: -32700
+  title: Parse error
+  layer: jsonrpc
+  meaning: The request body was not valid JSON.
+  remediation: Fix the JSON serialization before retrying.
+  method: derived
+  source: JSON-RPC 2.0 specification, section 5.1 - the transport Upway serves.
+- code: -32600
+  title: Invalid Request
+  layer: jsonrpc
+  meaning: The JSON sent is not a valid Request object.
+  remediation: Ensure jsonrpc, id and method members are present and well formed.
+  method: derived
+  source: JSON-RPC 2.0 specification, section 5.1.
+- code: -32601
+  title: Method not found
+  layer: jsonrpc
+  meaning: The method does not exist. On this server the valid methods are initialize, tools/list and tools/call.
+  remediation: Call tools/list to enumerate what the server supports before calling it.
+  method: derived
+  source: JSON-RPC 2.0 specification, section 5.1.
+- code: -32602
+  title: Invalid params
+  layer: jsonrpc
+  meaning: >-
+    Arguments failed the tool's inputSchema. On this surface the most common causes are
+    a missing meta.ucp-agent.profile (required by all 13 tools) and a missing
+    meta.idempotency-key on complete_checkout (required by that tool alone).
+  remediation: >-
+    Validate the arguments against the tool's published JSON Schema 2020-12 inputSchema
+    in mcp/upway-mcp-tools.json before dispatch.
+  method: derived
+  source: JSON-RPC 2.0 section 5.1, plus the required[] arrays in the live tool schemas.
+- code: -32603
+  title: Internal error
+  layer: jsonrpc
+  meaning: Server-side failure.
+  remediation: Retry with backoff. On complete_checkout, reuse the same meta.idempotency-key so the retry cannot double-charge.
+  method: derived
+  source: JSON-RPC 2.0 specification, section 5.1.
+- code: 429
+  title: Too Many Requests
+  layer: http
+  meaning: The per-IP rate limit on the MCP endpoint was exceeded.
+  remediation: Back off and retry. No Retry-After header was observed, so use exponential backoff.
+  method: searched
+  source: https://upway.co/llms.txt
+  quote: '"Respect rate limits. The MCP endpoint is rate-limited per IP. Back off on 429 responses."'
+- code: null
+  title: Payment not approved by buyer
+  layer: application
+  meaning: >-
+    complete_checkout must not be invoked without contemporaneous buyer approval.
+    Upway's agent instructions make this a hard rule rather than a recommendation.
+  remediation: >-
+    Obtain explicit buyer consent at the moment of payment, or route the purchase
+    through the Shop Pay handler so the wallet collects the approval.
+  method: searched
+  source: https://upway.co/llms.txt
+  quote: '"Checkout requires human approval. Agents must not complete payment without explicit buyer consent."'
+  note: The concrete error code returned in this case is not published.
+gaps:
+- No error-code reference, problem-type registry or troubleshooting page exists on any Upway host.
+- >-
+  No application-level error taxonomy is published for the commerce domain - out of
+  stock, price changed, address unserviceable, payment declined - even though those are
+  the failures an autonomous buying agent will actually meet. No decline-code catalog
+  is emitted: Upway is the merchant, not the payment processor - card decline codes
+  belong to the payment handlers declared in /.well-known/ucp (Google Pay, Shopify
+  card, Shop Pay) and are not Upway's to publish.
+- application/problem+json (RFC 9457) is not used; the transport is JSON-RPC.

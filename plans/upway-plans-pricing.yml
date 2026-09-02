@@ -1,0 +1,46 @@
+generated: '2026-09-02'
+method: searched
+source: https://upway.co/agents.md
+name: Upway Plans and Pricing
+description: >-
+  Upway publishes no API plans, no developer tiers and no metered pricing. It is a
+  direct-to-consumer retailer of certified pre-owned electric bikes, and its API surface
+  is a storefront it opens to shopping agents so they can buy those bikes. The commerce
+  endpoint is free to call and requires no account, no key and no contract; the money in
+  the relationship is the price of a bike, not the price of an API call.
+plan_count: 0
+plans: []
+pricing_model: none-for-api
+what_is_priced:
+  unit: physical goods (refurbished e-bikes and accessories)
+  where: >-
+    Per-product prices are returned by the search_catalog, lookup_catalog and
+    get_product MCP tools as {"amount": <int minor units>, "currency": <ISO 4217>}, and
+    are shown on the storefront product pages.
+  discovery: https://upway.co/collections/all
+api_access_cost:
+  amount: 0
+  currency: USD
+  note: >-
+    Anonymous. A tools/list against https://upway.co/api/ucp/mcp returned 200 with no
+    credential on 2026-09-02. Cart and checkout construction are likewise open; payment
+    is the buyer's, taken at complete_checkout with the buyer's explicit approval.
+free_tier: not-applicable
+enterprise_contact: false
+evidence:
+- url: https://upway.co/agents.md
+  status: 200
+  note: >-
+    The canonical agent-facing document. Describes catalog, cart, checkout and read-only
+    browsing; names no plan, quota, tier or developer pricing anywhere.
+- url: https://upway.co/llms.txt
+  status: 200
+  note: Mirrors agents.md. No plans.
+- url: https://upway.co/api/ucp/mcp
+  status: 200
+  note: Anonymous tools/list succeeded - access is not gated behind a paid plan.
+notes:
+- >-
+  plan_count 0 here means "checked, the provider genuinely publishes none", not "not
+  looked at". There is no /pricing, /developers or /plans page on any Upway host, and
+  no enterprise contact-us gate either.

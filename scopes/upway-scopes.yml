@@ -1,0 +1,50 @@
+generated: '2026-09-02'
+method: probed
+source: https://upway.co/.well-known/openid-configuration
+name: Upway OAuth Scopes
+description: >-
+  Scopes advertised by the OpenID Connect / OAuth 2.0 discovery documents served from
+  upway.co for the store's customer-account identity provider. Read from the live
+  discovery document, not from prose. The UCP MCP commerce endpoint itself is anonymous
+  and consumes none of these scopes.
+docs: https://upway.co/.well-known/openid-configuration
+issuer: https://shopify.com/authentication/65864040675
+authorization_endpoint: https://shopify.com/authentication/65864040675/oauth/authorize
+token_endpoint: https://shopify.com/authentication/65864040675/oauth/token
+jwks_uri: https://shopify.com/authentication/65864040675/.well-known/jwks.json
+grant_types_supported:
+- authorization_code
+- refresh_token
+- 'urn:ietf:params:oauth:grant-type:jwt-bearer'
+code_challenge_methods_supported:
+- S256
+scope_count: 4
+scopes:
+- name: openid
+  description: Issue an ID token identifying the signed-in customer.
+  standard: true
+- name: email
+  description: Release the customer's email address and the email_verified claim.
+  standard: true
+- name: 'customer-account-api:full'
+  description: Full access to the Shopify Customer Account API for this shop (orders, addresses, profile).
+  standard: false
+- name: 'customer-account-mcp-api:full'
+  description: >-
+    Full access to the authenticated customer-account MCP API for this shop - the
+    signed-in counterpart to the anonymous storefront UCP MCP endpoint.
+  standard: false
+claims_supported:
+- iss
+- sub
+- aud
+- exp
+- iat
+- nonce
+- sid
+- email
+- email_verified
+x-evidence:
+  fetched: '2026-09-02'
+  url: https://upway.co/.well-known/openid-configuration
+  http_status: 200

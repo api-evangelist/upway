@@ -1,0 +1,200 @@
+generated: '2026-09-02'
+method: searched
+source: https://upway.co/agents.md
+name: Upway API Conventions
+description: >-
+  Cross-cutting runtime semantics for Upway's agent-facing commerce surface, read from
+  the live UCP MCP tool schemas at https://upway.co/api/ucp/mcp (saved verbatim to
+  mcp/upway-mcp-tools.json), the agent instructions at https://upway.co/agents.md and
+  https://upway.co/llms.txt, and the store's own published cancellation and return
+  policy. Nothing here is inferred from the Shopify platform in general; each row cites
+  a document served on upway.co.
+docs:
+- https://upway.co/agents.md
+- https://upway.co/llms.txt
+- https://upway.co/policies/refund-policy
+
+auth_style:
+  summary: >-
+    Anonymous for discovery, catalog, cart and checkout construction; buyer approval
+    out-of-band for payment completion. No API key.
+  see: authentication/upway-authentication.yml
+
+idempotency:
+  supported: true
+  grade: verified
+  mechanism: request-field
+  field: meta.idempotency-key
+  required: true
+  scope: complete_checkout
+  description: >-
+    complete_checkout - the single irreversible, money-moving operation on the surface -
+    declares meta.idempotency-key as a REQUIRED property in its JSON Schema inputSchema,
+    described as "An idempotency key for completing the checkout." It is not an optional
+    header an agent may forget; the call is schema-invalid without it. No other tool
+    takes an idempotency key, and none of the others charges the buyer.
+  retention: not published
+  evidence:
+    url: https://upway.co/api/ucp/mcp
+    status: 200
+    artifact: mcp/upway-mcp-tools.json
+    json_path: result.tools[?(@.name=='complete_checkout')].inputSchema.properties.meta.properties.idempotency-key
+  note: >-
+    Retention/replay window for a key is not stated in any document Upway serves;
+    recorded as unpublished rather than guessed.
+
+pagination:
+  style: cursor
+  scope: search_catalog
+  params:
+  - name: catalog.pagination.cursor
+    type: string
+    description: Pagination cursor.
+  - name: catalog.pagination.limit
+    type: integer
+    description: Number of results to return.
+  response_fields: not published
+  source: mcp/upway-mcp-tools.json
+  note: >-
+    Cursor pagination is declared in the search_catalog inputSchema. The name of the
+    cursor field returned in the response is not published in any schema Upway serves,
+    so an agent learns it only by making the first call. The other catalog tools
+    (lookup_catalog, get_product) take identifiers rather than pages and are not
+    paginated. The read-only storefront JSON endpoints
+    (/collections/{handle}/products.json) use Shopify's page/limit query convention, but
+    that is platform behaviour Upway does not document, so it is not asserted here.
+
+field_expansion:
+  supported: false
+  note: >-
+    No sparse-fieldset or expand parameter appears in any tool schema. Detail depth is
+    chosen by picking a tool - lookup_catalog for many shallow records, get_product for
+    one complete record.
+
+metadata:
+  supported: true
+  field: meta
+  required: true
+  description: >-
+    Every one of the 13 tools requires a top-level meta object carrying
+    meta.ucp-agent.profile, a URI identifying the calling agent's UCP agent profile.
+    This is a mandatory caller-identity convention, not an optional annotation, and it
+    is the closest thing on this surface to an API credential.
+
+request_id_tracing:
+  supported: true
+  header: x-request-id
+  observed: fbbd574b-4a9a-4419-87ee-1c816a2df94b-1788375976
+  note: >-
+    Observed on live responses from both the storefront and the MCP endpoint. Also
+    surfaced inside the server-timing header as requestID. Not documented by Upway;
+    recorded as probed runtime behaviour.
+
+versioning:
+  scheme: dated protocol versions
+  current: '2026-08-25'
+  supported:
+  - '2026-08-25'
+  - '2026-04-08'
+  - '2026-01-23'
+  negotiation: >-
+    UCP version is selected by the version-specific discovery document listed in
+    /.well-known/ucp supported_versions. The MCP layer negotiates separately: a client
+    initialize requesting protocolVersion 2026-06-18 was answered with 2024-11-05.
+  see: lifecycle/upway-lifecycle.yml
+
+error_envelope:
+  shape: JSON-RPC 2.0
+  format: jsonrpc-error
+  note: >-
+    The transport is JSON-RPC 2.0 over HTTP POST, so failures return an error member
+    with code and message rather than an RFC 9457 problem+json body. See
+    errors/upway-problem-types.yml.
+
+rate_limit_signaling:
+  documented: true
+  quantified: false
+  status_code: 429
+  headers_observed: []
+  statement: >-
+    "Respect rate limits. The MCP endpoint is rate-limited per IP. Back off on 429
+    responses." - https://upway.co/llms.txt
+  note: >-
+    No RateLimit-* or X-RateLimit-* headers were present on the probed 200 responses.
+    Shopify-complexity-score and shopify-complexity-score-v2 were returned (420/42 on
+    the MCP endpoint) but are cost-accounting headers, not a documented budget.
+  see: rate-limits/upway-rate-limits.yml
+
+money:
+  representation: minor units
+  shape: '{"amount": <integer>, "currency": <ISO 4217 code>}'
+  example: '{"amount": 2500, "currency": "USD"} is $25.00'
+  note: >-
+    Stated in the description of every catalog, cart and checkout tool, together with
+    an explicit instruction to convert to major units before quoting a price to a buyer
+    and a warning about zero-decimal currencies such as JPY.
+
+identifiers:
+  scheme: Shopify global IDs
+  example: 'gid://shopify/Checkout/abc123'
+  note: Documented inline in the get_checkout / update_checkout id parameter descriptions.
+
+dry_run_mode:
+  supported: false
+  grade: na
+  note: >-
+    No preview, simulate or dry-run flag exists in any tool schema. The nearest
+    equivalent is the cart/checkout split - create_checkout and update_checkout compute
+    real totals, taxes, shipping and discounts without charging, and only
+    complete_checkout moves money - which is a rehearsal path in practice but is not
+    labelled as one.
+
+reversibility:
+  grade: verified
+  applies: true
+  note: >-
+    The surface has a write path (cart, checkout, order) so reversibility is in scope.
+    Both an in-protocol reversal operation and a stated window exist, from Upway's own
+    documents.
+  surfaces:
+  - operation: complete_checkout
+    effect: Charges the buyer and creates an order.
+    reversal_operation: null
+    reversal_path: >-
+      Out of protocol. There is no refund, void or reverse tool on the MCP surface; a
+      completed order is reversed through Upway's published cancellation and return
+      policy, not through an agent call.
+    window: >-
+      Cancellation is free within 1 hour of purchase; after that but before 8:00 AM EST
+      the next business day and before the bike ships, a $75 fee applies; after 8:00 AM
+      EST the next business day, or once shipped, it is handled as a return. Returns:
+      14 days from the delivery date under the Test Ride Policy, with a $200 restocking
+      fee on a cancellation converted to a return.
+    window_source: https://upway.co/policies/refund-policy
+    grade: verified
+  - operation: create_checkout / update_checkout
+    effect: Creates or mutates an uncompleted checkout. No money moves.
+    reversal_operation: cancel_checkout
+    reversal_path: In-protocol. cancel_checkout (required [meta, id]).
+    window: Any time before complete_checkout succeeds.
+    window_source: mcp/upway-mcp-tools.json
+    grade: verified
+  - operation: create_cart / update_cart
+    effect: Creates or mutates a cart. No money moves.
+    reversal_operation: cancel_cart
+    reversal_path: In-protocol. cancel_cart (required [meta, id]).
+    window: Any time; a cart has no commitment attached.
+    window_source: mcp/upway-mcp-tools.json
+    grade: verified
+  agent_guidance: >-
+    An agent can undo everything it does on this surface up to and including
+    complete_checkout, and nothing after it. complete_checkout is the one-way door: the
+    reversal lives in a human refund policy with a 14-day clock and real fees, not in a
+    tool call. Confirm with the buyer before that call, never after.
+
+cross_links:
+  errors: errors/upway-problem-types.yml
+  lifecycle: lifecycle/upway-lifecycle.yml
+  authentication: authentication/upway-authentication.yml
+  rate_limits: rate-limits/upway-rate-limits.yml
+  data_model: data-model/upway-data-model.yml

@@ -1,0 +1,45 @@
+generated: '2026-09-02'
+method: searched
+source: https://registry.npmjs.org/-/v1/search?text=upway
+name: Upway Client Packages
+description: >-
+  Upway publishes no client libraries. This is the expected result for the shape of its
+  API surface: the contract is a remote MCP endpoint an agent POSTs to directly, and the
+  provider's own agent instructions tell integrators to use a generic MCP client or the
+  Shop skill rather than a vendor SDK. Recorded as a checked absence, not an unchecked
+  gap.
+official_package_count: 0
+packages: []
+registries_checked:
+- registry: npm
+  query: https://registry.npmjs.org/-/v1/search?text=upway
+  status: 200
+  result: >-
+    One match, upway-storybook, last published 2022-10-27 from
+    github.com/DiegoJavierConchilloWagner/Upway-StoryBook - an unrelated third-party
+    project, not Upway the e-bike marketplace. Not recorded as a package.
+  official_hits: 0
+- registry: github
+  query: https://api.github.com/users/upway
+  status: 200
+  result: >-
+    github.com/upway is an individual user account created 2014-02-17 with no company,
+    no name, no bio and no link to upway.co. It is NOT Upway's organization, so no
+    GitHubOrganization pointer is emitted. No first-party Upway GitHub org was found.
+  official_hits: 0
+distribution_notes:
+- >-
+  The integration path Upway documents is a direct HTTPS POST to
+  https://upway.co/api/ucp/mcp with a generic MCP client - no install step, no package,
+  no version to pin. The tool schemas are fetched live via tools/list, which means an
+  agent always gets the current contract and there is no client library to fall out of
+  date.
+- >-
+  Upway's llms.txt recommends the Shop skill at https://shop.app/SKILL.md for
+  buy-for-me agents. That is Shopify's artifact, distributed by Shopify across every
+  Shopify store, and is not counted as an Upway package.
+version: null
+published: null
+version_note: >-
+  Checked, nothing to record. No first-party package exists in any registry, so there is
+  no version or publish date to read. Not a null-because-unchecked.

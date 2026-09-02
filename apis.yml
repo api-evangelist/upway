@@ -1,23 +1,139 @@
 aid: upway
 name: Upway
-description: 'Upway is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: 'Upway is the largest marketplace for certified pre-owned electric bikes,
+  founded in 2021 by former Uber executives Toussaint Wattinne and Stephane Ficaja. It
+  buys used e-bikes from individuals, retailers and manufacturers, reconditions them
+  through a 50-point inspection at its own UpCenter facilities in France, Germany,
+  Belgium, the Netherlands, Spain, Italy and the United States, and resells them at up
+  to 60% off with a one-year warranty. Upway has no developer program and publishes no
+  OpenAPI, but it does run a real agent-facing commerce API: each of its storefronts
+  serves an llms.txt and an /agents.md, a Universal Commerce Protocol merchant profile
+  at /.well-known/ucp, and an anonymous Model Context Protocol endpoint whose tools/list
+  returns 13 tools with full JSON Schema inputSchemas covering catalog search, cart,
+  checkout and order retrieval.'
+image: https://cdn.shopify.com/s/files/1/0658/6404/0675/files/Upway_Logo_RGB_Electric_Blue.png?v=1677147770
 url: https://raw.githubusercontent.com/api-evangelist/upway/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-09-02'
 modified: '2026-09-02'
 tags:
 - Company
-apis: []
+- E-Commerce
+- Retail
+- Marketplace
+- Agentic Commerce
+- Model Context Protocol
+- Universal Commerce Protocol
+- Electric Bikes
+- Micromobility
+- Circular Economy
+- Refurbished Goods
+- Shopping Agents
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+apis:
+- aid: upway-commerce-ucp-mcp
+  name: Upway Commerce (UCP MCP) API
+  description: 'Upway''s agent-facing commerce surface. A remote Model Context Protocol
+    server at https://upway.co/api/ucp/mcp implementing the Universal Commerce Protocol
+    shopping service, version 2026-08-25. Anonymous: an unauthenticated tools/list
+    returned HTTP 200 with 13 tools - search_catalog, lookup_catalog, get_product,
+    create_cart, get_cart, update_cart, cancel_cart, create_checkout, get_checkout,
+    update_checkout, complete_checkout, cancel_checkout and get_order - each carrying a
+    JSON Schema 2020-12 inputSchema. complete_checkout requires an idempotency key and
+    explicit buyer approval. Discoverable from /llms.txt, /agents.md, /.well-known/ucp
+    and a dedicated agentic-discovery sitemap.'
+  humanURL: https://upway.co/agents.md
+  baseURL: https://upway.co/api/ucp/mcp
+  tags:
+  - Agentic Commerce
+  - Model Context Protocol
+  - Universal Commerce Protocol
+  - E-Commerce
+  - Shopping
+  - Checkout
+  properties:
+  - type: MCPServer
+    url: mcp/upway-mcp.yml
+  - type: Authentication
+    url: authentication/upway-authentication.yml
+  - type: OAuthScopes
+    url: scopes/upway-scopes.yml
+  - type: RateLimits
+    url: rate-limits/upway-rate-limits.yml
+  - type: ErrorCatalog
+    url: errors/upway-problem-types.yml
+  - type: Conventions
+    url: conventions/upway-conventions.yml
+  - type: Idempotency
+    url: conventions/upway-conventions.yml
+  - type: DataModel
+    url: data-model/upway-data-model.yml
+  - type: Conformance
+    url: conformance/upway-conformance.yml
+  - type: Lifecycle
+    url: lifecycle/upway-lifecycle.yml
+  - type: Plans
+    url: plans/upway-plans-pricing.yml
+  - type: AgentSkill
+    url: skills/_index.yml
 common:
+- type: DomainSecurity
+  url: security/upway-domain-security.yml
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://upway.co/
+- type: Documentation
+  url: https://upway.co/agents.md
+- type: Support
+  url: https://help.upway.co/en-US
+- type: Blog
+  url: https://upway.co/blogs/news
+- type: Login
+  url: https://upway.co/account/login
+- type: TermsOfService
+  url: https://upway.co/policies/terms-of-service
+- type: PrivacyPolicy
+  url: https://upway.co/policies/privacy-policy
+- type: LinkedIn
+  url: https://www.linkedin.com/company/shopupway
+- type: LLMsTxt
+  url: llms/upway-llms.txt
+- type: WellKnown
+  url: well-known/upway-well-known.yml
+- type: MCPServer
+  url: mcp/upway-mcp.yml
+- type: Authentication
+  url: authentication/upway-authentication.yml
+- type: OAuthScopes
+  url: scopes/upway-scopes.yml
+- type: Conventions
+  url: conventions/upway-conventions.yml
+- type: Idempotency
+  url: conventions/upway-conventions.yml
+- type: ErrorCatalog
+  url: errors/upway-problem-types.yml
+- type: RateLimits
+  url: rate-limits/upway-rate-limits.yml
+- type: Plans
+  url: plans/upway-plans-pricing.yml
+- type: Lifecycle
+  url: lifecycle/upway-lifecycle.yml
+- type: Conformance
+  url: conformance/upway-conformance.yml
+- type: DataModel
+  url: data-model/upway-data-model.yml
+- type: Packages
+  url: packages/upway-packages.yml
+- type: AgentSkill
+  url: skills/_index.yml
+
+x-enrichment:
+  date: '2026-09-02'
+  status: enriched
+  artifacts_added: 23
+  pass: local-v1

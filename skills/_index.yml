@@ -1,0 +1,40 @@
+generated: '2026-09-02'
+method: generated
+source: mcp/upway-mcp-tools.json
+name: Upway Agent Skills
+description: >-
+  Packaged Agent Skills for Upway's UCP MCP commerce surface. Both are grounded in the
+  13 real tool names and their live JSON Schema inputSchemas, captured verbatim from
+  https://upway.co/api/ucp/mcp on 2026-09-02 and saved to mcp/upway-mcp-tools.json. No
+  tool name, parameter or policy statement in either skill was invented; the
+  cancellation and return windows are quoted from Upway's own published refund policy.
+provider_published_skills:
+  found: false
+  note: >-
+    Upway publishes no skills/ directory and no AGENTS.md of its own. It does point
+    agents at https://shop.app/SKILL.md, which is Shopify's cross-store shopping skill,
+    not Upway's - so it is referenced in these skills but not saved here as an Upway
+    artifact.
+skills:
+- name: upway-buy-a-used-ebike
+  file: skills/upway-buy-a-used-ebike.md
+  description: Search to buyer-approved purchase, with the idempotency and reversibility rules attached.
+  operations:
+  - search_catalog
+  - get_product
+  - create_cart
+  - update_cart
+  - create_checkout
+  - update_checkout
+  - complete_checkout
+  - cancel_checkout
+  - get_order
+- name: upway-browse-catalog
+  file: skills/upway-browse-catalog.md
+  description: Read-only inventory, price and availability research, via MCP or the documented storefront JSON paths.
+  operations:
+  - search_catalog
+  - lookup_catalog
+  - get_product
+endpoint: https://upway.co/api/ucp/mcp
+auth: none
