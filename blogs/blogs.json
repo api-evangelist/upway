@@ -1,0 +1,14 @@
+{
+  "repo": "upway",
+  "feeds": [
+    {
+      "source": "https://help.upway.co/en-US",
+      "feed_url": "https://help.upway.co/en-US",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-09-06T19:17:18Z"
+}
