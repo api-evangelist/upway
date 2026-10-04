@@ -98,6 +98,9 @@ apis:
     url: plans/upway-plans-pricing.yml
   - type: AgentSkill
     url: skills/_index.yml
+  x-surface: platform-generated
+  x-platform: shopify
+  x-platform-surface: ucp
 common:
 - type: DomainSecurity
   url: security/upway-domain-security.yml
