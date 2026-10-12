@@ -1,0 +1,16 @@
+generated: '2026-10-12'
+method: none
+source:
+- https://zapier.com/apps/upway/integrations
+- https://n8n.io/integrations/upway/
+- https://composio.dev/toolkits/upway
+- https://monid.ai/tools/upway
+checked:
+- https://composio.dev/toolkits/upway
+- https://monid.ai/tools/upway
+- https://n8n.io/integrations/upway/
+- https://zapier.com/apps/upway/integrations
+summary: null
+marketplace_apps: []
+edges: []
+templates: []
