@@ -2,22 +2,17 @@ generated: '2026-09-02'
 method: probed
 source: https://upway.co/api/ucp/mcp
 name: Upway UCP Commerce MCP Server
-description: >-
-  Upway's storefront exposes a live, anonymous Model Context Protocol endpoint at
-  https://upway.co/api/ucp/mcp, advertised from https://upway.co/llms.txt and
-  https://upway.co/agents.md and discoverable from the UCP merchant profile at
-  https://upway.co/.well-known/ucp. An unauthenticated JSON-RPC tools/list returned
-  HTTP 200 with 13 tools and full JSON Schema 2020-12 inputSchemas, saved verbatim to
-  mcp/upway-mcp-tools.json. The server implements the Universal Commerce Protocol
-  (ucp.dev) shopping service, version 2026-08-25.
-ownership: >-
-  The endpoint is served on upway.co, Upway's own domain, and the UCP profile fetched
-  from that host names merchant "Upway United States", merchant_origin upway.co and
-  Shopify shop id 65864040675. The MCP server implementation is platform-authored
-  (serverInfo.name "universal-commerce", version 0.1.0 - Shopify's UCP runtime, shared
-  across Shopify stores) rather than written by Upway; what belongs to Upway is the
-  catalog, the merchant profile, the payment handler configuration and the decision to
-  serve it. Recorded as Upway's agent surface with platform authorship stated.
+description: Upway's storefront exposes a live, anonymous Model Context Protocol endpoint at https://upway.co/api/ucp/mcp,
+  advertised from https://upway.co/llms.txt and https://upway.co/agents.md and discoverable from the UCP
+  merchant profile at https://upway.co/.well-known/ucp. An unauthenticated JSON-RPC tools/list returned
+  HTTP 200 with 13 tools and full JSON Schema 2020-12 inputSchemas, saved verbatim to mcp/upway-mcp-tools.json.
+  The server implements the Universal Commerce Protocol (ucp.dev) shopping service, version 2026-08-25.
+ownership: The endpoint is served on upway.co, Upway's own domain, and the UCP profile fetched from that
+  host names merchant "Upway United States", merchant_origin upway.co and Shopify shop id 65864040675.
+  The MCP server implementation is platform-authored (serverInfo.name "universal-commerce", version 0.1.0
+  - Shopify's UCP runtime, shared across Shopify stores) rather than written by Upway; what belongs to
+  Upway is the catalog, the merchant profile, the payment handler configuration and the decision to serve
+  it. Recorded as Upway's agent surface with platform authorship stated.
 deployment:
   mode: remote
   endpoint: https://upway.co/api/ucp/mcp
@@ -68,65 +63,133 @@ tools:
 - name: search_catalog
   category: catalog
   description: Search for products from the online store, hosted on Shopify.
-  required: [meta, catalog]
+  required:
+  - meta
+  - catalog
 - name: lookup_catalog
   category: catalog
   description: Look up multiple products or variants by identifier.
-  required: [meta, catalog]
+  required:
+  - meta
+  - catalog
 - name: get_product
   category: catalog
   description: Retrieve complete product detail by identifier. Returns a singular product.
-  required: [meta, catalog]
+  required:
+  - meta
+  - catalog
 - name: create_cart
   category: cart
   description: Creates a new cart.
-  required: [meta, cart]
+  required:
+  - meta
+  - cart
 - name: get_cart
   category: cart
   description: Get the cart contents.
-  required: [meta, id]
+  required:
+  - meta
+  - id
 - name: update_cart
   category: cart
   description: Perform updates to a cart.
-  required: [meta, cart, id]
+  required:
+  - meta
+  - cart
+  - id
 - name: cancel_cart
   category: cart
   description: Cancels a cart.
-  required: [meta, id]
+  required:
+  - meta
+  - id
 - name: create_checkout
   category: checkout
   description: Creates a checkout. Returns line items, totals, discounts and taxes.
-  required: [meta, checkout]
+  required:
+  - meta
+  - checkout
 - name: get_checkout
   category: checkout
   description: Returns details about the checkout, including line items, totals, discounts and taxes.
-  required: [meta, id]
+  required:
+  - meta
+  - id
 - name: update_checkout
   category: checkout
   description: Updates a checkout.
-  required: [meta, checkout, id]
+  required:
+  - meta
+  - checkout
+  - id
 - name: complete_checkout
   category: checkout
-  description: >-
-    Completes a checkout and returns the checkout result, including order ID. Requires
-    meta.idempotency-key. Buyer approval is mandatory before payment.
-  required: [meta, id, checkout]
+  description: Completes a checkout and returns the checkout result, including order ID. Requires meta.idempotency-key.
+    Buyer approval is mandatory before payment.
+  required:
+  - meta
+  - id
+  - checkout
 - name: cancel_checkout
   category: checkout
   description: Cancels a checkout.
-  required: [meta, id]
+  required:
+  - meta
+  - id
 - name: get_order
   category: order
   description: Get the details of an order.
-  required: [meta, id]
+  required:
+  - meta
+  - id
 conventions_observed:
 - Every tool requires a meta.ucp-agent.profile URI for UCP agent-profile discovery.
 - complete_checkout additionally requires meta.idempotency-key (a required, not optional, field).
-- >-
-  Money is expressed as {"amount": <int>, "currency": <ISO 4217>} in minor units, stated
-  in every catalog/cart/checkout tool description.
+- 'Money is expressed as {"amount": <int>, "currency": <ISO 4217>} in minor units, stated in every catalog/cart/checkout
+  tool description.'
 - Identifiers are Shopify global IDs, e.g. gid://shopify/Checkout/abc123.
 artifacts:
   tools_list: mcp/upway-mcp-tools.json
   ucp_profile: well-known/upway-ucp.json
   llms_txt: llms/upway-llms.txt
+tool_quality:
+  tool_count: 13
+  tokens_total: 49354
+  tokens_per_tool_median: 2906
+  heavy_tools:
+  - name: complete_checkout
+    tokens: 7009
+  - name: create_checkout
+    tokens: 5572
+  - name: update_checkout
+    tokens: 5528
+  - name: get_checkout
+    tokens: 5285
+  - name: update_cart
+    tokens: 3784
+  heavy_tool_count: 13
+  params_total: 29
+  params_undescribed: 0
+  params_described_pct: 100.0
+  tools_with_undescribed_params: 0
+  tools_annotated: 0
+  annotated_pct: 0.0
+  state_changing_unhinted:
+  - create_checkout
+  - update_checkout
+  - cancel_checkout
+  - create_cart
+  - update_cart
+  - cancel_cart
+  tools_missing_schema: 0
+  short_descriptions: 0
+  duplicate_descriptions: 0
+  duplicate_names: 0
+  nonportable_names: []
+  output_schema_count: 13
+  token_estimate: chars/3.6 of each compact tool definition
+  source: mcp/upway-mcp-tools.json
+  measured: '2026-10-20'
+  scored: false
+  note: Facts from the saved tools/list capture (mcp_tool_quality.py); recorded, not scored. Checks learned
+    from Glimind's agent-readiness audit.
