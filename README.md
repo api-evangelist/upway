@@ -64,34 +64,115 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Upway is the largest marketplace for certified pre-owned electric bikes. Founded in 2021 by
-former Uber executives Toussaint Wattinne and Stephane Ficaja, it buys used e-bikes from
-individuals, retailers and manufacturers, reconditions them through a 50-point inspection at
-its own UpCenter facilities, and resells them at up to 60% off with a one-year warranty. It
-operates storefronts in France, Germany, Belgium, the Netherlands, Spain, Italy and the
-United States.
+Upway is the largest marketplace for certified pre-owned electric bikes, founded in 2021 by former Uber executives Toussaint Wattinne and Stephane Ficaja. It buys used e-bikes from individuals, retailers and manufacturers, reconditions them through a 50-point inspection at its own UpCenter facilities in France, Germany, Belgium, the Netherlands, Spain, Italy and the United States, and resells them at up to 60% off with a one-year warranty. Upway has no developer program and publishes no OpenAPI, but it does run a real agent-facing commerce API: each of its storefronts serves an llms.txt and an /agents.md, a Universal Commerce Protocol merchant profile at /.well-known/ucp, and an anonymous Model Context Protocol endpoint whose tools/list returns 13 tools with full JSON Schema inputSchemas covering catalog search, cart, checkout and order retrieval.
 
-## The API surface
+**Areas:** Company · E-Commerce · Retail · Marketplace · Agentic Commerce · MCP · Universal Commerce Protocol · Electric Bikes · Micromobility · Circular Economy · Refurbished Goods · Shopping Agents
 
-Upway has no developer program, no OpenAPI and no SDKs. It does have a real, live,
-agent-facing commerce API:
+## Upway on APIs.io
 
-- **A remote MCP server** at `https://upway.co/api/ucp/mcp`. Anonymous. An unauthenticated
-  `tools/list` returns 13 tools with full JSON Schema 2020-12 input schemas covering catalog
-  search, cart, checkout and order retrieval. Captured verbatim in
-  [`mcp/upway-mcp-tools.json`](mcp/upway-mcp-tools.json).
-- **A Universal Commerce Protocol merchant profile** at `/.well-known/ucp`, declaring UCP
-  2026-08-25 plus two older supported versions, the `dev.ucp.shopping.*` capability set, and
-  three payment handlers.
-- **`llms.txt` and `agents.md`** on every storefront host, plus a dedicated
-  `sitemap_agentic_discovery.xml`.
-- **OIDC and OAuth 2.0 discovery** for customer accounts, including RFC 9728
-  protected-resource metadata naming `upway.co` as the resource.
+Everything profiled for Upway is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/upway/](https://apis.io/providers/upway/)** — or go straight to one of the APIs or properties below.
 
-The MCP server implementation is platform-authored (Shopify's `universal-commerce` UCP
-runtime) and served under Upway's own domain; the catalog, merchant profile and payment
-configuration are Upway's. That distinction is recorded in
-[`mcp/upway-mcp.yml`](mcp/upway-mcp.yml) rather than glossed over.
+### APIs (1)
 
-- https://upway.co/
-- https://upway.co/agents.md
+- [Upway Commerce (UCP MCP) API](https://apis.io/apis/upway/upway-commerce-ucp-mcp/) — Upway's agent-facing commerce surface. A remote Model Context Protocol server at https://upway.co/api/ucp/mcp implementing the Universal Commerce Protocol…
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [Upway UCP Commerce MCP Server](https://apis.io/servers/upway/upway-ucp-commerce-mcp-server/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Upway Authentication](https://apis.io/security/upway/upway-authentication/)
+- [Upway Domain Security](https://apis.io/security/upway/upway-domain-security/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Upway Scopes](https://apis.io/scopes/upway/upway-scopes/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Upway Plans Pricing](https://apis.io/plans/upway/upway-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Upway Rate Limits](https://apis.io/rate-limits/upway/upway-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://upway.co/)
+- [Documentation](https://upway.co/agents.md)
+- [Support](https://help.upway.co/en-US)
+- [Blog](https://upway.co/blogs/news)
+- [Terms of service](https://upway.co/policies/terms-of-service)
+- [Privacy policy](https://upway.co/policies/privacy-policy)
+
+## API Evangelist rating
+
+**Kin Score 26.9** — thin · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 75.0 |
+| Contract quality | 0.0 |
+| Contract governance | 18.2 |
+| Operational transparency | 21.1 |
+| Developer ergonomics | 30.4 |
+| Access clarity | 27.6 |
+
+**Agent readiness 24.8** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | — |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | platform (partial credit) |
+| Auth Clarity | served (partial credit) |
+| Idempotency | documented (partial credit) |
+| Error Semantics | derived (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | served (partial credit) |
+| Protected Resource Metadata | verified |
+| Dynamic Client Registration | — |
+| Agentic Commerce | platform (partial credit) |
+| Pagination Ratio | na |
+| Operation Distinctiveness | na |
+
+**Regulatory alignment 34.3** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/upway/](https://apis.io/providers/upway/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Upway: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/upway/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
